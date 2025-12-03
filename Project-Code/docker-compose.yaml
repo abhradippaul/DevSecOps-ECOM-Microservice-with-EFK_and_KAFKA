@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  postgres_product_order:
+    image: postgres:15.15-alpine3.22
+    container_name: postgres_product_db
+    restart: no
+    environment:
+      POSTGRES_USER: abhra
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: products
+    ports:
+      - "5430:5432"
+    volumes:
+      - product_db_data:/var/lib/postgresql/data
+
+volumes:
+  product_db_data:

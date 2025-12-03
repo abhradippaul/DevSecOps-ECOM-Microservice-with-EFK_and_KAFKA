@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node ./dist/index.js\"",
+    "dev": "tsx watch src/index.ts",
+    "drizzle:full": "pnpm drizzle-kit generate && pnpm drizzle-kit migrate",
     "build": "tsc",
     "start": "node dist/index.js"
   },
@@ -15,10 +16,18 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
-    "tsc-watch": "^7.2.0"
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.7",
+    "tsc-watch": "^7.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@clerk/express": "^1.7.53",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
   }
 }

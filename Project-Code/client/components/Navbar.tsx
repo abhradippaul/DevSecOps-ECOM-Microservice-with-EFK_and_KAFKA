@@ -3,6 +3,8 @@ import Link from "next/link";
 import SearchBar from "./SearchBar";
 import { Bell, Home } from "lucide-react";
 import ShoppingCartIcon from "./ShoppingCartIcon";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import ProfileButton from "./ProfileButton";
 
 function Navbar() {
   return (
@@ -24,6 +26,12 @@ function Navbar() {
         </Link>
         <Bell className="size-4 text-gray-600" />
         <ShoppingCartIcon />
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <ProfileButton />
+        </SignedIn>
       </div>
     </nav>
   );
