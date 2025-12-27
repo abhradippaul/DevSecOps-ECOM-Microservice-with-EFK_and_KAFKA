@@ -22,9 +22,11 @@
     "start:order": "nest start order --watch",
     "start:payment": "nest start payment --watch",
     "start:product": "nest start product --watch",
-    "start:all": "concurrently -n API,USER,AUTH -c blue,green,magenta \"pnpm run start:auth\" \"npm run start:order\" \"npm run start:payment\" \"npm run start:product\""
+    "start:all": "concurrently -n AUTH,ORDER,PAYMENT,PRODUCT -c blue,green,magenta \"pnpm run start:auth\" \"npm run start:order\" \"npm run start:payment\" \"npm run start:product\""
   },
   "dependencies": {
+    "@aws-sdk/client-sns": "^3.958.0",
+    "@aws-sdk/client-sqs": "^3.958.0",
     "@clerk/backend": "^2.29.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
