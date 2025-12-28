@@ -4,8 +4,8 @@ resource "aws_sns_topic" "this" {
     {
     "http": {
         "defaultHealthyRetryPolicy": {
-        "minDelayTarget": 20,
-        "maxDelayTarget": 20,
+        "minDelayTarget": 1,
+        "maxDelayTarget": 1,
         "numRetries": 3,
         "numMaxDelayRetries": 0,
         "numNoDelayRetries": 0,
@@ -14,16 +14,19 @@ resource "aws_sns_topic" "this" {
         },
         "disableSubscriptionOverrides": false,
         "defaultThrottlePolicy": {
-        "maxReceivesPerSecond": 1
+        "maxReceivesPerSecond": 10
         }
     }
     }
     EOF
+
+  tags = {
+    Environment = var.env
+  }
 }
 
-resource "aws_sns_topic_policy" "default" {
-  arn = aws_sns_topic.this.arn
-
+resource "aws_sns_topic_policy" "this" {
+  arn    = aws_sns_topic.this.arn
   policy = data.aws_iam_policy_document.sns_topic_policy.json
 }
 
