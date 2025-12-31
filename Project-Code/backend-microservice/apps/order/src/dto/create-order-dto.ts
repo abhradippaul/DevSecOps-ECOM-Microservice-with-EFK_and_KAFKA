@@ -6,10 +6,18 @@ export class CreateOrderDto {
     productId: string
 
     @IsNotEmpty()
+    @IsString()
+    customerId: string
+
+    @IsNotEmpty()
+    @IsNumber()
+    price: number
+
+    @IsNotEmpty()
     @IsNumber()
     quantity: number
 
     @IsNotEmpty()
     @IsString()
-    customerId: string
+    status: string
 }
