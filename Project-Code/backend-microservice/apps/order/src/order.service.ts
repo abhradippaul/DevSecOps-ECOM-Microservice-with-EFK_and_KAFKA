@@ -6,7 +6,7 @@ import { CreateOrderDto } from './dto/create-order-dto';
 
 @Injectable()
 export class OrderService {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) { }
+  constructor(@InjectModel(Order.name) private readonly orderModel: Model<Order>) { }
 
   checkHealth() {
     return {
