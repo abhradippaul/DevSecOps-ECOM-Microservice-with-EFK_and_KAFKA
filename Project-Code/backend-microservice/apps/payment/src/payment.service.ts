@@ -25,27 +25,27 @@ export class PaymentService {
   async createCheckoutSession(
     createCheckoutSessionDto: CreateCheckoutSessionDto
   ): Promise<Stripe.Checkout.Session> {
-    const { currency, amount, quantity, productId } = createCheckoutSessionDto
     try {
-      const session = await this.stripe.checkout.sessions.create({
-        line_items: [
-          {
-            price_data: {
-              currency: currency,
-              product_data: {
-                name: `Test Product`,
-              },
-              unit_amount: amount * 100,
-            },
-            quantity: quantity,
+
+      const items = createCheckoutSessionDto.items.map(({ amount, productId, quantity }) => ({
+        price_data: {
+          currency: createCheckoutSessionDto.currency,
+          product_data: {
+            name: productId,
           },
-        ],
+          unit_amount: amount * 100,
+        },
+        quantity: quantity,
+      }))
+
+      const session = await this.stripe.checkout.sessions.create({
+        line_items: items,
         mode: 'payment',
         success_url: `http://localhost:8002/success.html`,
         cancel_url: `http://localhost:8002/cancel.html`,
-        metadata: {
-          productId: productId,
-        },
+        // metadata: {
+        //   productId: productId,
+        // },
       });
 
       return session;

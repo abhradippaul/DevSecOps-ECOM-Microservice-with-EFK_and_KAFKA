@@ -3,6 +3,7 @@ import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { ConfigModule } from '@nestjs/config';
 import { WebhookModule } from './webhook/webhook.module';
+import { RabbitMQModule } from './rabbitmq/consumer/rabbitmq.module';
 
 @Module({
   imports: [
@@ -10,7 +11,8 @@ import { WebhookModule } from './webhook/webhook.module';
       isGlobal: true,
       envFilePath: ".env.development"
     }),
-    WebhookModule
+    WebhookModule,
+    RabbitMQModule
   ],
   controllers: [PaymentController],
   providers: [PaymentService],

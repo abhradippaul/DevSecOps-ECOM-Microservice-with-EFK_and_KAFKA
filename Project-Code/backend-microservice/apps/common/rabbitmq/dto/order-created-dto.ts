@@ -3,7 +3,7 @@ import { IsArray, IsNotEmpty, IsString, ValidateNested } from "class-validator"
 
 class ProductItemDto {
     @IsNotEmpty()
-    amount: number
+    price: number
 
     @IsNotEmpty()
     @IsString()
@@ -13,7 +13,7 @@ class ProductItemDto {
     quantity: number
 }
 
-export class CreateCheckoutSessionDto {
+export class OrderCreatedDto {
     @IsString()
     @IsNotEmpty()
     currency: string

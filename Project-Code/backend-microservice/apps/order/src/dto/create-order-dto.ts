@@ -1,23 +1,23 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator"
+import {
+    IsArray,
+    IsEnum,
+    IsNotEmpty,
+    ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { OrderItemDto } from './order-item-dto';
+import { OrderStatus } from './order-status.enum';
 
 export class CreateOrderDto {
-    @IsNotEmpty()
-    @IsString()
-    productId: string
 
     @IsNotEmpty()
-    @IsString()
-    customerId: string
+    customerId: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    price: number
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => OrderItemDto)
+    items: OrderItemDto[];
 
-    @IsNotEmpty()
-    @IsNumber()
-    quantity: number
-
-    @IsNotEmpty()
-    @IsString()
-    status: string
+    @IsEnum(OrderStatus)
+    status: OrderStatus;
 }
