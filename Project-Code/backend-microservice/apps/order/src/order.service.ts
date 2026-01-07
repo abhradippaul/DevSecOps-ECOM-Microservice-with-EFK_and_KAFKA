@@ -8,11 +8,7 @@ import { RabbitMQProducerService } from './rabbitmq/rabbitmq-manager.service';
 
 @Injectable()
 export class OrderService {
-<<<<<<< Updated upstream
-  constructor(@InjectModel(Order.name) private readonly orderModel: Model<Order>) { }
-=======
   constructor(@InjectModel(Order.name) private orderModel: Model<Order>, private readonly rabbitMQProducerService: RabbitMQProducerService) { }
->>>>>>> Stashed changes
 
   checkHealth() {
     return {

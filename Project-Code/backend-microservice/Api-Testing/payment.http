@@ -1,0 +1,31 @@
+@BASE_URL = http://localhost:8002
+@API_VERSION = api/v1
+@JSON = application/json
+
+### Payment Service Health Check
+GET {{BASE_URL}}/{{API_VERSION}}/payment/health
+
+### Create Payment Checkout Session
+POST {{BASE_URL}}/{{API_VERSION}}/payment/create-checkout-session
+Content-Type: {{JSON}}
+
+{
+    "currency" : "usd",
+    "items": [
+        {
+            "amount": 100,
+            "productId" : "1234",
+            "quantity" : 4
+        },
+        {
+            "amount": 120,
+            "productId" : "1237",
+            "quantity" : 2
+        },
+        {
+            "amount": 50,
+            "productId" : "1231",
+            "quantity" : 3
+        }
+    ]
+}

@@ -1,0 +1,59 @@
+@BASE_URL = http://localhost:8001
+@API_VERSION = api/v1
+@JSON = application/json
+
+### Orders Service Health Check
+GET {{BASE_URL}}/{{API_VERSION}}/order/health
+
+### Create Order
+POST {{BASE_URL}}/{{API_VERSION}}/order/create-order
+Content-Type: {{JSON}}
+
+{
+    "customerId" : "123",
+    "items" : [
+        {
+            "productId": "123",
+            "quantity" : 2,
+            "price" : 100
+        },
+        {
+            "productId": "1234",
+            "quantity" : 10,
+            "price" : 60
+        }
+    ],
+    "status": "PENDING"
+}
+
+### Get Order By OrderId
+GET {{BASE_URL}}/{{API_VERSION}}/order/get-order/695b33f893317cdef1df6e60
+
+### Get Orders By ProductId
+GET {{BASE_URL}}/{{API_VERSION}}/order/get-orders/123
+
+### Update Order Status
+PATCH {{BASE_URL}}/{{API_VERSION}}/order/update-order-status/695b337e93317cdef1df6e5e
+Content-Type: {{JSON}}
+
+{
+    "status" : "CONFIRMED"
+}
+
+### Get Cart Items
+GET {{BASE_URL}}/{{API_VERSION}}/order/cart/get-all-items/123
+
+### Add Cart Items
+POST {{BASE_URL}}/{{API_VERSION}}/order/cart/add-to-cart
+Content-Type: {{JSON}}
+
+{
+    "customerId" : "123",
+    "items": [
+        {
+            "productId" : "695b337e93317cdef1df6e5e",
+            "quantity" : 1,
+            "price" : 500
+        }
+    ]
+}

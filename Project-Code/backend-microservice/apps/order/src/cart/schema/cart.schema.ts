@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Currency } from '../enum/currency-enum';
 
 export type CartDocument = HydratedDocument<Cart>;
 
@@ -17,11 +18,22 @@ class Items {
 
 @Schema({ timestamps: true, _id: false })
 export class Cart {
-    @Prop({ required: true, unique: true })
-    customerId: string;
 
-    @Prop({ required: true })
+    @Prop()
     items: Items[]
+
+    @Prop({ default: 0 })
+    totalItems: number
+
+    @Prop({ default: 0 })
+    totalPrice: number
+
+    @Prop({
+        required: true,
+        enum: Currency,
+        default: Currency.USD,
+    })
+    currency: string
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

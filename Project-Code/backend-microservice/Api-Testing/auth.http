@@ -1,0 +1,26 @@
+@BASE_URL = http://localhost:8004
+@API_VERSION = api/v1
+@JSON = application/json
+
+### Auth Service Health Check
+GET {{BASE_URL}}/{{API_VERSION}}/auth/health
+
+### Create User
+POST {{BASE_URL}}/{{API_VERSION}}/auth/user/create-user
+Content-Type: {{JSON}}
+
+{
+    "firstName" : "Abhradip",
+    "lastName" : "Paul",
+    "email" : "test@gmail.com",
+    "password" : "Abhradip@123"
+}
+
+### Login User
+POST {{BASE_URL}}/{{API_VERSION}}/auth/user/login-user
+Content-Type: {{JSON}}
+
+{
+    "userId" : "user_37wN5j8A93sLOaIzl3qdklmJ5T2",
+    "password" : "Abhradip@123"
+}

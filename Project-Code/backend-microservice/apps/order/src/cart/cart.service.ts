@@ -7,6 +7,12 @@ import { InjectModel } from '@nestjs/mongoose';
 export class CartService {
     constructor(@InjectModel(Cart.name) private readonly cartModel: Model<Cart>) { }
 
+    async createCart() {
+        const isCartCreated = await this.cartModel.create({})
+        if (!isCartCreated?._id) throw new BadRequestException("Failed to create cart")
+        return
+    }
+
     async getAllCartItems(customerId: string) {
         if (!customerId) throw new BadRequestException("Customer Id not found")
         const cartItems = await this.cartModel.findOne({ customerId })
@@ -17,7 +23,8 @@ export class CartService {
         }
     }
 
-    addToCart() {
+    async addToCart() {
+        // const isCartAdded = await this.cartModel.create()
         console.log("Added to cart")
         return {
             message: 'Product added to cart successfully',

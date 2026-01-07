@@ -1,0 +1,56 @@
+@BASE_URL = http://localhost:8003
+@API_VERSION = api/v1
+@JSON = application/json
+
+### Product Service Health Check
+GET {{BASE_URL}}/{{API_VERSION}}/product/health
+
+### Get Product Details
+GET {{BASE_URL}}/{{API_VERSION}}/product/get-product/8c744abd-4502-4978-a388-5ae05d2a289d
+
+### Create Product
+POST {{BASE_URL}}/{{API_VERSION}}/product/create-product
+Content-Type: {{JSON}}
+
+{
+    "name" : "Product 1",
+    "short_description" : "short_description",
+    "description" : "description",
+    "price" : "100",
+    "sizes": ["SM", "M", "XL"],
+    "colors": ["blue", "green", "red"],
+    "images": {
+        "blue" : "blue.jpeg",
+        "green" : "green.jpeg",
+        "red" : "red.jpeg"
+    } 
+}
+
+### Get Products Details
+GET {{BASE_URL}}/{{API_VERSION}}/product/all-products
+
+### Delete Product Details
+DELETE {{BASE_URL}}/{{API_VERSION}}/product/delete-product/8c744abd-4502-4978-a388-5ae05d2a289d
+
+### Get All Category
+GET {{BASE_URL}}/{{API_VERSION}}/product/category/all-categories
+
+### Create Category
+POST {{BASE_URL}}/{{API_VERSION}}/product/category/create-category
+Content-Type: {{JSON}}
+
+{
+    "slug": "helmet",
+    "name" : "helmet"
+}
+
+### Update Category
+PATCH {{BASE_URL}}/{{API_VERSION}}/product/category/update-category/he461c990b-b386-4cb5-b706-f06d5d702067lmet
+Content-Type: {{JSON}}
+
+{
+    "name" : "Helmet"
+}
+
+### Delete Category
+DELETE {{BASE_URL}}/{{API_VERSION}}/product/category/delete-category/helment
