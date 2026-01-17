@@ -14,12 +14,21 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - rabbitmq_network
+      - ecom_network
+
+  redis:
+    image: redis:alpine3.22
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ecom_network
 
 volumes:
   rabbitmq_data:
 
 
 networks:
-  rabbitmq_network:
+  ecom_network:
     driver: bridge

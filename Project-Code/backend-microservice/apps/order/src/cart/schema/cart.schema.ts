@@ -16,7 +16,7 @@ class Items {
     price: number;
 }
 
-@Schema({ timestamps: true, _id: false })
+@Schema({ timestamps: true })
 export class Cart {
 
     @Prop()
@@ -28,6 +28,9 @@ export class Cart {
     @Prop({ default: 0 })
     totalPrice: number
 
+    @Prop({ required: true })
+    userId: string
+
     @Prop({
         required: true,
         enum: Currency,
@@ -37,5 +40,3 @@ export class Cart {
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
-
-CartSchema.index({ customerId: 1 }, { unique: true });

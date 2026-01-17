@@ -9,9 +9,4 @@ export class CartController {
     getAllCartItems(@Param("customerId") customerId: string) {
         return this.cartService.getAllCartItems(customerId)
     }
-
-    @Post("add-to-cart")
-    addToCart() {
-        return this.cartService.addToCart()
-    }
 }

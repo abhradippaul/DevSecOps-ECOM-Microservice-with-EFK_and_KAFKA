@@ -1,16 +1,46 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cart } from './schema/cart.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import amqp, { ChannelWrapper } from 'amqp-connection-manager';
+import { Channel } from 'amqplib';
 
 @Injectable()
 export class CartService {
-    constructor(@InjectModel(Cart.name) private readonly cartModel: Model<Cart>) { }
+    private channelWrapper: ChannelWrapper;
+    private readonly logger = new Logger(CartService.name)
 
-    async createCart() {
-        const isCartCreated = await this.cartModel.create({})
+    constructor(@InjectModel(Cart.name) private readonly cartModel: Model<Cart>) {
+        const connection = amqp.connect([process.env.RABBITMQ_URL!]);
+        this.channelWrapper = connection.createChannel({
+            setup: (channel: Channel) => {
+                return channel.assertQueue('cart_queue', { durable: true });
+            },
+        });
+    }
+
+    async createCart(userId: string) {
+        if (!userId) throw new BadRequestException("UserId not found in Cart creation")
+
+        const isCartCreated = await this.cartModel.create({
+            userId
+        })
         if (!isCartCreated?._id) throw new BadRequestException("Failed to create cart")
-        return
+
+        await this.channelWrapper.sendToQueue(
+            'cart.created',
+            Buffer.from(JSON.stringify({
+                userId: isCartCreated._id
+            })),
+            {
+                persistent: true,
+            },
+        );
+
+        return {
+            message: "Cart created successfully",
+            data: isCartCreated
+        }
     }
 
     async getAllCartItems(customerId: string) {
