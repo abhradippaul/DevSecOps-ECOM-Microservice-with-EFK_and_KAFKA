@@ -41,19 +41,14 @@ Content-Type: {{JSON}}
 }
 
 ### Get Cart Items
-GET {{BASE_URL}}/{{API_VERSION}}/order/cart/get-all-items/123
+GET {{BASE_URL}}/{{API_VERSION}}/order/cart/get-all-items/696c8f8821887f16a3c1d3f0
 
 ### Add Cart Items
-POST {{BASE_URL}}/{{API_VERSION}}/order/cart/add-to-cart
+PATCH {{BASE_URL}}/{{API_VERSION}}/order/cart/add-to-cart/696c8f8821887f16a3c1d3f0
 Content-Type: {{JSON}}
 
 {
-    "customerId" : "123",
-    "items": [
-        {
-            "productId" : "695b337e93317cdef1df6e5e",
-            "quantity" : 1,
-            "price" : 500
-        }
-    ]
+    "productId" : "695b337e93317cdef1df6e5f",
+    "quantity" : 4,
+    "price" : 200
 }

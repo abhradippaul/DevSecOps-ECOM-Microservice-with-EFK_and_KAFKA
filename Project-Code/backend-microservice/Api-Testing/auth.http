@@ -1,7 +1,7 @@
 @BASE_URL = http://localhost:8004
 @API_VERSION = api/v1
 @JSON = application/json
-@AUTH_TOKEN = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZDA1MzcyNS1kMmY0LTQ4YTgtODkwYS02ZGZjZGIwZjQyNGIiLCJlbWFpbCI6InRlc3QxQGdtYWlsLmNvbSIsImlhdCI6MTc2ODU4Mzc3MSwiZXhwIjoxNzY4NTg3MzcxfQ.gvGWOUapkfV7Qv3XpzIJMcdixzNtnNLN84c9WSYGxb0
+@AUTH_TOKEN = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhM2FhMWI5Yy03MjYzLTQ2MTEtOTdiZS03MWVjNTA3NWY3OTYiLCJpYXQiOjE3Njg3MjM1NDUsImV4cCI6MTc2ODcyNzE0NX0.6wzGmEEs1L98IqGojMs4CiXlNSJCiboaN34TB2E2ayw
 
 ### Auth Service Health Check
 GET {{BASE_URL}}/{{API_VERSION}}/auth/health
@@ -11,10 +11,10 @@ POST {{BASE_URL}}/{{API_VERSION}}/auth/user/create-user
 Content-Type: {{JSON}}
 
 {
-    "firstName" : "Test Third",
-    "middleName" : "User Third",
-    "lastName" : "3",
-    "email" : "test3@gmail.com",
+    "firstName" : "Test First",
+    "middleName" : "User First",
+    "lastName" : "1",
+    "email" : "test1@gmail.com",
     "password" : "1234"
 }
 

@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Stripe } from 'stripe';
 import { ConfigService } from '@nestjs/config';
-import { CreateCheckoutSessionDto } from './dto/create-checkout-session-dto';
+import { CreateCheckoutSessionQueueDto } from 'apps/common/rabbitmq/dto/payment/create-checkout-session-queue.dto';
 
 @Injectable()
 export class PaymentService {
@@ -23,17 +23,17 @@ export class PaymentService {
   }
 
   async createCheckoutSession(
-    createCheckoutSessionDto: CreateCheckoutSessionDto
+    createCheckoutSessionDto: CreateCheckoutSessionQueueDto
   ): Promise<Stripe.Checkout.Session> {
     try {
 
-      const items = createCheckoutSessionDto.items.map(({ amount, productId, quantity }) => ({
+      const items = createCheckoutSessionDto.items.map(({ price, productId, quantity }) => ({
         price_data: {
           currency: createCheckoutSessionDto.currency,
           product_data: {
             name: productId,
           },
-          unit_amount: amount * 100,
+          unit_amount: price * 100,
         },
         quantity: quantity,
       }))

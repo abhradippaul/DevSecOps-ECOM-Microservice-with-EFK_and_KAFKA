@@ -1,25 +1,18 @@
 import { Type } from "class-transformer"
 import { IsArray, IsNotEmpty, IsString, ValidateNested } from "class-validator"
+import { OrderItemDto } from "../../../dto/order/order-item-dto"
 
-class ProductItemDto {
-    @IsNotEmpty()
-    price: number
-
-    @IsNotEmpty()
-    @IsString()
-    productId: string
-
-    @IsNotEmpty()
-    quantity: number
-}
-
-export class OrderCreatedDto {
+export class CreateCheckoutSessionQueueDto {
     @IsString()
     @IsNotEmpty()
     currency: string
 
+    @IsString()
+    @IsNotEmpty()
+    customerId: string
+
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => ProductItemDto)
-    items: ProductItemDto[]
+    @Type(() => OrderItemDto)
+    items: OrderItemDto[]
 }

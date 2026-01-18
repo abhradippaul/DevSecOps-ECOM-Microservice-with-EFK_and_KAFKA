@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { CurrencyType } from 'apps/common/enum/payment/currency-type.enum';
 import { HydratedDocument } from 'mongoose';
-import { Currency } from '../enum/currency-enum';
 
 export type CartDocument = HydratedDocument<Cart>;
 
@@ -33,8 +33,8 @@ export class Cart {
 
     @Prop({
         required: true,
-        enum: Currency,
-        default: Currency.USD,
+        enum: CurrencyType,
+        default: CurrencyType.USD,
     })
     currency: string
 }

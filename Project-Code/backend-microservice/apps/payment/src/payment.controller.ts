@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { CreateCheckoutSessionDto } from './dto/create-checkout-session-dto';
+import { CreateCheckoutSessionQueueDto } from 'apps/common/rabbitmq/dto/payment/create-checkout-session-queue.dto';
 
 @Controller("api/v1/payment")
 export class PaymentController {
@@ -13,7 +13,7 @@ export class PaymentController {
 
   @Post('create-checkout-session')
   createCheckoutSession(
-    @Body() body: CreateCheckoutSessionDto
+    @Body() body: CreateCheckoutSessionQueueDto
   ) {
     return this.paymentService.createCheckoutSession(body);
   }

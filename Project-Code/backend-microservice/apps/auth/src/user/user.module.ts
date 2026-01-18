@@ -5,12 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../schema/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
-import { CacheableMemory } from 'cacheable';
-import KeyvRedis from '@keyv/redis';
-import { Keyv } from 'keyv';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import * as redisStore from 'cache-manager-redis-store';
+import { ConsumerService } from './user-consumer.service';
 
 @Module({
     imports: [
@@ -24,20 +19,8 @@ import * as redisStore from 'cache-manager-redis-store';
             secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '3600s' },
         }),
-        CacheModule.registerAsync({
-            useFactory: async () => {
-                return {
-                    stores: [
-                        new Keyv({
-                            store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
-                        }),
-                        new KeyvRedis('redis://localhost:6379'),
-                    ],
-                };
-            },
-        }),
     ],
     controllers: [UserController],
-    providers: [UserService]
+    providers: [UserService, ConsumerService]
 })
 export class UserModule { }

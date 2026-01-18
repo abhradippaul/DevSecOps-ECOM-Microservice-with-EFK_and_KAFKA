@@ -4,11 +4,11 @@ import { Order } from './schema/order.schema';
 import { Model } from 'mongoose';
 import { CreateOrderDto } from './dto/create-order-dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status-dto';
-import { RabbitMQProducerService } from './rabbitmq/rabbitmq-manager.service';
+import { OrderProducerQueueService } from './rabbitmq/producer/order/order-producer.service';
 
 @Injectable()
 export class OrderService {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>, private readonly rabbitMQProducerService: RabbitMQProducerService) { }
+  constructor(@InjectModel(Order.name) private orderModel: Model<Order>, private readonly orderProducerQueueService: OrderProducerQueueService) { }
 
   checkHealth() {
     return {
@@ -54,7 +54,7 @@ export class OrderService {
         totalAmount,
       });
 
-      this.rabbitMQProducerService.sendOrderCreateNotification({ currency: "usd", items: createOrderDto.items })
+      this.orderProducerQueueService.sendOrderCreateNotification({ currency: "USD", items: createOrderDto.items, customerId: createOrderDto.customerId })
 
       if (!isOrderCreated._id) throw new BadRequestException("Failed to create order")
 

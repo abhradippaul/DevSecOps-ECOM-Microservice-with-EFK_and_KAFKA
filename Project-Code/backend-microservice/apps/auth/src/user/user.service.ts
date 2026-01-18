@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { Channel } from 'amqplib';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CartCreatedQueue } from './user-consumer.service';
 
 interface UserDetails {
     sub: string
@@ -22,13 +23,14 @@ export class UserService {
     private channelWrapper: ChannelWrapper;
 
     constructor(
-        @InjectRepository(User) private readonly userRepository: Repository<User>, private jwtService: JwtService,
+        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        private jwtService: JwtService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) {
         const connection = amqp.connect([process.env.RABBITMQ_URL!]);
         this.channelWrapper = connection.createChannel({
             setup: (channel: Channel) => {
-                return channel.assertQueue('user_queue', { durable: true });
+                return channel.assertQueue('user.created', { durable: true });
             },
         });
     }
@@ -65,7 +67,7 @@ export class UserService {
     }
 
     async loginUser(body: LoginUserDto) {
-        const isUserExists = await this.userRepository.findOne({ where: { email: body.email } })
+        const isUserExists = await this.userRepository.findOne({ where: { email: body.email }, select: ['id', 'password'] })
 
         if (!isUserExists?.id) throw new NotFoundException("Email or password is wrong")
 
@@ -73,7 +75,7 @@ export class UserService {
 
         if (!isPasswordValid.valueOf()) throw new NotFoundException("Email or password is wrong")
 
-        const payload = { sub: isUserExists.id, email: isUserExists.email };
+        const payload = { sub: isUserExists.id };
         const access_token = await this.jwtService.signAsync(payload)
 
         console.log("User loggedin successfully")
@@ -94,13 +96,13 @@ export class UserService {
         let userDetails = await this.cacheManager.get<User | null>(cacheKey);
 
         if (!userDetails) {
-            userDetails = await this.userRepository.findOneBy({ id: userId });
+            userDetails = await this.userRepository.findOne({ where: { id: userId }, select: ['id', 'email', 'cartId', 'firstName', 'middleName', 'lastName'] })
 
             if (!userDetails) {
                 throw new UnauthorizedException("User is not found");
             }
 
-            await this.cacheManager.set(cacheKey, userDetails, 3600);
+            await this.cacheManager.set(cacheKey, userDetails, 60 * 1000);
             console.log("Cache Miss - Stored");
         } else {
             console.log("Cache Hit Successfully");
@@ -121,6 +123,16 @@ export class UserService {
         return {
             message: "Fetched user details successfully",
             data: userInfo || {}
+        }
+    }
+
+    async addCartIdToUser(cartCreatedQueue: CartCreatedQueue) {
+        if (!cartCreatedQueue.cartId || !cartCreatedQueue.userId) throw new BadRequestException("Cart created request is not valid")
+        const isUserUpdated = await this.userRepository.update({ id: cartCreatedQueue.userId }, { cartId: cartCreatedQueue.cartId })
+        if (!isUserUpdated.affected) throw new BadRequestException("Failed to upddate user for cart")
+        return {
+            message: "User updated successfully for cart",
+            data: isUserUpdated
         }
     }
 }

@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { Channel } from 'amqplib';
-import { OrderCreatedDto } from 'apps/common/rabbitmq/dto/order-created-dto';
+import { OrderCreatedQueueDto } from 'apps/common/rabbitmq/dto/order/order-created-queue.dto';
 
 @Injectable()
-export class RabbitMQProducerService {
+export class OrderProducerQueueService {
     private channelWrapper: ChannelWrapper;
 
     constructor() {
@@ -16,7 +15,7 @@ export class RabbitMQProducerService {
             },
         });
     }
-    async sendOrderCreateNotification(data: OrderCreatedDto) {
+    async sendOrderCreateNotification(data: OrderCreatedQueueDto) {
         try {
             await this.channelWrapper.sendToQueue(
                 'order.created',

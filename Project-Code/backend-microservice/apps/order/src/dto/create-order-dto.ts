@@ -5,8 +5,8 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrderItemDto } from './order-item-dto';
-import { OrderStatus } from './order-status.enum';
+import { OrderStatus } from 'apps/common/enum/order/order-status.enum';
+import { OrderItemDto } from 'apps/common/dto/order/order-item-dto';
 
 export class CreateOrderDto {
 

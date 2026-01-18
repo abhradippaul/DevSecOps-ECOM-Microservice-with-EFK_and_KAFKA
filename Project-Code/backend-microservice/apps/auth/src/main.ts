@@ -11,6 +11,16 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true }),
   );
 
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL!],
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
   await app.listen(PORT);
 
   console.log(`Auth service connected on port ${PORT}`)

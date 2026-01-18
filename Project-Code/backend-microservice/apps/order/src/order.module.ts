@@ -5,10 +5,15 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './schema/order.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { CartController } from './cart/cart.controller';
 import { CartService } from './cart/cart.service';
 import { CartModule } from './cart/cart.module';
+import { OrderProducerQueueService } from './rabbitmq/producer/order/order-producer.service';
+import { CartConsumerService } from './rabbitmq/consumer/cart/cart-consumer.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import Keyv from 'keyv';
+import { CacheableMemory } from 'cacheable';
+import KeyvRedis from '@keyv/redis';
 
 @Module({
   imports: [
@@ -31,10 +36,22 @@ import { CartModule } from './cart/cart.module';
         },
       },
     ]),
-    RabbitMQModule,
-    CartModule
+    CartModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => {
+        return {
+          stores: [
+            new Keyv({
+              store: new CacheableMemory({ ttl: 30, lruSize: 5000 }),
+            }),
+            new KeyvRedis(process.env.REDIS_URL),
+          ],
+        };
+      },
+    }),
   ],
   controllers: [OrderController, CartController],
-  providers: [OrderService, CartService],
+  providers: [OrderService, CartService, OrderProducerQueueService, CartConsumerService],
 })
 export class OrderModule { }

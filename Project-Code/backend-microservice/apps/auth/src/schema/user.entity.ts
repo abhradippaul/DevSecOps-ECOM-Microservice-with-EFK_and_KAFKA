@@ -21,6 +21,9 @@ export class User {
     @Column({ length: 100 })
     password: string;
 
+    @Column({ length: 36, default: "" })
+    cartId: string;
+
     @CreateDateColumn({
         name: 'created_at',
         type: 'timestamp with time zone',
