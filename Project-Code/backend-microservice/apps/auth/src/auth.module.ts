@@ -10,7 +10,6 @@ import { CacheModule } from '@nestjs/cache-manager';
 import Keyv from 'keyv';
 import { CacheableMemory } from 'cacheable';
 import KeyvRedis from '@keyv/redis';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [

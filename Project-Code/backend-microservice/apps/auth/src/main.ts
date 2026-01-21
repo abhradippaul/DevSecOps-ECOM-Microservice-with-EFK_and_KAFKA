@@ -21,6 +21,7 @@ async function bootstrap() {
     },
   });
 
+  await app.startAllMicroservices();
   await app.listen(PORT);
 
   console.log(`Auth service connected on port ${PORT}`)
