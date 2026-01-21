@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
+
     paths:
-      - "apps/auth/**"
+      - "Project-Code/backend-microservice/apps/auth/**"
       - ".github/workflows/deploy-auth-service.yaml"
 
 jobs:
@@ -29,8 +30,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./apps/auth/Dockerfile
+          context: Project-Code/backend-microservice
+          file: Project-Code/backend-microservice/apps/auth/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/ecom-auth-service:latest
