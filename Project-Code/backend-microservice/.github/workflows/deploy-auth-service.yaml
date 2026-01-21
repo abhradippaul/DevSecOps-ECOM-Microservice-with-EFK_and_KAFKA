@@ -1,4 +1,4 @@
-name: Deploy Auth Service to Docker Hub
+name: Deploy Auth Service to Docker Hub Test
 
 on:
   push:
