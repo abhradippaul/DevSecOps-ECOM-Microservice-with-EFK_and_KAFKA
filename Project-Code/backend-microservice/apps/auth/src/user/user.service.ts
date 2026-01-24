@@ -1,22 +1,17 @@
-import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user-dto';
-import { LoginUserDto } from './dto/login-user-dto';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../schema/user.entity';
 import { Repository } from 'typeorm';
-import { createHashPassword, verifyPassword } from 'apps/common/auth/bcrypt';
+import { createHashPassword, createHashRefreshToken, verifyHashRefreshToken, verifyPassword } from 'apps/common/auth/bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { Channel } from 'amqplib';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CartCreatedQueue } from './user-consumer.service';
-
-interface UserDetails {
-    sub: string
-    email: string
-    iat: number,
-    exp: number
-}
+import { UserDetails } from 'apps/common/types/auth/user-details';
+import { CreateUserDto } from 'apps/common/dto/auth/dto/create-user-dto';
+import { LoginUserDto } from 'apps/common/dto/auth/dto/login-user-dto';
+import { LogoutUserDto } from 'apps/common/dto/auth/dto/logout-user.dto';
 
 @Injectable()
 export class UserService {
@@ -67,7 +62,7 @@ export class UserService {
     }
 
     async loginUser(body: LoginUserDto) {
-        const isUserExists = await this.userRepository.findOne({ where: { email: body.email }, select: ['id', 'password'] })
+        const isUserExists = await this.userRepository.findOne({ where: { email: body.email }, select: ['id', 'password', 'roles'] })
 
         if (!isUserExists?.id) throw new NotFoundException("Email or password is wrong")
 
@@ -75,14 +70,91 @@ export class UserService {
 
         if (!isPasswordValid.valueOf()) throw new NotFoundException("Email or password is wrong")
 
-        const payload = { sub: isUserExists.id };
-        const access_token = await this.jwtService.signAsync(payload)
+        const payload = { sub: isUserExists.id, roles: isUserExists.roles };
+
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(payload, {
+                expiresIn: "15m",
+                secret: process.env.JWT_ACCESS_SECRET
+            }),
+            this.jwtService.signAsync(payload, {
+                expiresIn: "7d",
+                secret: process.env.JWT_REFRESH_SECRET
+            }),
+        ]);
+
+        const hash = await createHashRefreshToken(refreshToken, 12)
+
+        const isTokenSaved = await this.userRepository.update({ id: isUserExists.id }, { refreshToken: hash })
+
+        if (!isTokenSaved.affected) throw new BadRequestException("Failed to updated refresh token")
 
         console.log("User loggedin successfully")
         return {
             message: "User loggedin successfully",
-            access_token
+            accessToken,
+            refreshToken
         }
+    }
+
+    async logoutUser(body: LogoutUserDto) {
+        const isUserExists = await this.userRepository.findOne({ where: { email: body.id, roles: body.role }, select: ['id', 'roles'] })
+
+        if (!isUserExists?.id) throw new NotFoundException("Email or password is wrong")
+
+        const isLogoutSuccessful = await this.userRepository.update({ id: isUserExists.id }, { refreshToken: null })
+
+        if (!isLogoutSuccessful.affected) throw new BadRequestException("Failed to logout")
+        console.log("Logged out successfully")
+
+        return {
+            message: "Logged out successfully"
+        }
+    }
+
+    async handleRefreshToken(token: string) {
+
+        if (!token) throw new UnauthorizedException("User is unauthorized");
+
+        let data: UserDetails = await this.jwtService.verify(token, { secret: process.env.JWT_REFRESH_SECRET })
+
+        if (!data?.sub) throw new UnauthorizedException("Unauthorized")
+
+        const userDetails = await this.userRepository.findOne({ where: { id: data.sub, roles: data.role }, select: ["id", "refreshToken"] })
+
+        if (!userDetails?.id || !userDetails?.refreshToken) throw new UnauthorizedException("User is unauthorized");
+
+        const isValid = await verifyHashRefreshToken(token, userDetails.refreshToken)
+
+        if (!isValid) {
+            await this.userRepository.update({ id: userDetails.id }, { refreshToken: null })
+            throw new UnauthorizedException("Unauthorized")
+        }
+
+        const payload = { sub: userDetails.id, roles: userDetails.roles };
+
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(payload, {
+                expiresIn: "15m",
+                secret: process.env.JWT_ACCESS_SECRET
+            }),
+            this.jwtService.signAsync(payload, {
+                expiresIn: "7d",
+                secret: process.env.JWT_REFRESH_SECRET
+            }),
+        ]);
+
+        const hash = await createHashRefreshToken(refreshToken, 12)
+
+        const isTokenSaved = await this.userRepository.update({ id: userDetails.id }, { refreshToken: hash })
+
+        if (!isTokenSaved.affected) throw new BadRequestException("Failed to updated refresh token")
+
+        return {
+            accessToken,
+            refreshToken
+        }
+
     }
 
     async getUserDetails(userInfo: UserDetails | null | undefined) {
@@ -128,7 +200,9 @@ export class UserService {
 
     async addCartIdToUser(cartCreatedQueue: CartCreatedQueue) {
         if (!cartCreatedQueue.cartId || !cartCreatedQueue.userId) throw new BadRequestException("Cart created request is not valid")
-        const isUserUpdated = await this.userRepository.update({ id: cartCreatedQueue.userId }, { cartId: cartCreatedQueue.cartId })
+
+        const isUserUpdated = await this.userRepository.update({ id: cartCreatedQueue.userId }, { cartId: cartCreatedQueue.cartId, isActive: true, isVerified: true })
+
         if (!isUserUpdated.affected) throw new BadRequestException("Failed to upddate user for cart")
         return {
             message: "User updated successfully for cart",

@@ -1,3 +1,4 @@
+import { UserRole } from 'apps/common/enum/auth/user-role.enum';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
 @Entity("users")
@@ -14,12 +15,24 @@ export class User {
     @Column({ length: 20 })
     lastName: string;
 
+    @Column({ default: false })
+    isActive: boolean;
+
+    @Column({ default: false })
+    isVerified: boolean;
+
+    @Column({ enum: UserRole, default: UserRole.BUYER })
+    roles: string;
+
     @Column({ unique: true, length: 50 })
     @Index()
     email: string;
 
     @Column({ length: 100 })
     password: string;
+
+    @Column({ length: 100, nullable: true })
+    refreshToken: string | null;
 
     @Column({ length: 36, default: "" })
     cartId: string;

@@ -4,11 +4,18 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AddItemToCartDto } from 'apps/common/dto/order/add-item-cart.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class CartService {
 
-    constructor(@InjectModel(Cart.name) private readonly cartModel: Model<Cart>, @Inject(CACHE_MANAGER) private cacheManager: Cache) { }
+    constructor(
+        @Inject('PRODUCT_SERVICE')
+        private readonly productClient: ClientProxy,
+        @InjectModel(Cart.name) private readonly cartModel: Model<Cart>,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    ) { }
 
     async createCart(userId: string) {
         const isCartCreated = await this.cartModel.create({ userId })
@@ -35,6 +42,18 @@ export class CartService {
     }
 
     async addToCart(body: AddItemToCartDto, cartId: string) {
+
+        const product = await firstValueFrom(
+            this.productClient.send(
+                { cmd: 'check-product' },
+                { productId: body.productId },
+            ),
+        );
+
+        if (!product.exists) {
+            throw new Error('Product does not exist');
+        }
+
         const cacheKey = `cart:${cartId}`
         let cartDetails: CartDocument | undefined | null = await this.cacheManager.get(cacheKey)
 

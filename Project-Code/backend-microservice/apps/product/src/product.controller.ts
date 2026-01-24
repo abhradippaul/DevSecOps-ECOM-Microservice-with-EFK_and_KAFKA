@@ -3,6 +3,7 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product-dto';
 import { GetProductsQueryDto } from './dto/get-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller("api/v1/product")
 export class ProductController {
@@ -36,6 +37,22 @@ export class ProductController {
   @Delete("/delete-product/:productId")
   deleteProduct(@Param("productId") productId: string) {
     return this.productService.deleteProduct(productId)
+  }
+
+  @MessagePattern({ cmd: 'check-product' })
+  async checkProduct(data: { productId: string }) {
+    const { productId } = data;
+
+    // Simulate DB check
+    if (productId === '123') {
+      return {
+        exists: true,
+        price: 100,
+        name: 'iPhone 15',
+      };
+    }
+
+    return { exists: false };
   }
 
 }

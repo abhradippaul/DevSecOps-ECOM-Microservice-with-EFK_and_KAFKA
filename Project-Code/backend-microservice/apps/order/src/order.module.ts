@@ -35,6 +35,14 @@ import KeyvRedis from '@keyv/redis';
           },
         },
       },
+      {
+        name: 'PRODUCT_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: Number(process.env.PRODUCT_SERVICE_PORT),
+        },
+      },
     ]),
     CartModule,
     CacheModule.registerAsync({
@@ -43,7 +51,7 @@ import KeyvRedis from '@keyv/redis';
         return {
           stores: [
             new Keyv({
-              store: new CacheableMemory({ ttl: 30, lruSize: 5000 }),
+              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
             }),
             new KeyvRedis(process.env.REDIS_URL),
           ],
